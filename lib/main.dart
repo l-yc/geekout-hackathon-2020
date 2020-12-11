@@ -48,6 +48,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
+bool overlay = false;
+bool tooltip = false;
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
@@ -68,8 +70,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Completer<GoogleMapController> _controller = Completer();
-  final Set<Heatmap> _heatmaps = {};
-  final Set<Marker> _markers ={};
+   Set<Heatmap> _heatmaps = {};
+   Set<Marker> _markers ={};
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(1.2847, 103.8610),
     zoom: 14.4746,
@@ -110,6 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final height = MediaQuery.of(context).size.height;
   final width = MediaQuery.of(context).size.width;
     return new Scaffold(
+     
       body: Stack(
         children: [
           GoogleMap(
@@ -121,11 +124,46 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           ),
 
-        ],
-      ),
+          Positioned(
+            right: width*0.05,
+            top: width*0.1,
+            child: IconButton(tooltip:'Test',
+            color: Colors.white,
+
+            icon: Icon(Icons.info, color: Colors.black,) , onPressed: _removetooltip )
+
+            ),
+            Positioned(
+              right: width*0.2, top: height*0.06,child: SizedBox(height: height*0.1,width: width*0.2,child: 
+            Visibility(
+              visible: tooltip ,
+                          child: ClipRRect(borderRadius: BorderRadius.circular(20),child:
+              Opacity(opacity: 0.6,child: Container(color: Colors.black,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(width: width*0.02,),
+                      SizedBox(width: width*0.18, child: Opacity(opacity: 1,child: Text(" The Least Crowded Area is Marina Square", style: TextStyle(color: Colors.white, fontSize: 10),))),
+                    ],
+                  ),
+                ],
+              ),
+              ))
+              ),
+            )
+            ,))
+
+        ]),
+          
+      
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          Opacity(opacity: 0.0,child: FloatingActionButton.extended(label:Text("test"),onPressed:_removeoverlay)),
           FloatingActionButton.extended(
             onPressed: _addHeatmap,
             label: Text('Add Heatmap'),
@@ -156,27 +194,41 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _removetooltip(){
+    setState(() {
+      tooltip = !tooltip;
+    });
+  }
+
+  void _removeoverlay()
+  {
+    setState(() {
+       _heatmaps={};
+       _markers={};
+    });
+  }
+
   void markersadd()
   {
     setState(() {
 
-      _markers.add(_createmarker(1.2847,103.8610, "Marina Bay"));
-      _markers.add(_createmarker(1.2842,103.8511, "One Raffles Place"));
-      _markers.add(_createmarker(1.2803,103.8543,"Marina Bay Link Mall"));
-      _markers.add(_createmarker(1.2938,103.8534,"Raffles City"));
-      _markers.add( _createmarker(1.293494,103.857170, "Suntec City"));
-      _markers.add( _createmarker(1.2928,103.8598 ,"Milenia Walk"));
-      _markers.add(_createmarker(1.2912,103.8577, "Marina Square"));
+      _markers.add(_createmarker(1.2847,103.8610, "Marina Bay","Very Crowded"));
+      _markers.add(_createmarker(1.2842,103.8511, "One Raffles Place","Very Crowded"));
+      _markers.add(_createmarker(1.2803,103.8543,"Marina Bay Link Mall","Very Crowded"));
+      _markers.add(_createmarker(1.2938,103.8534,"Raffles City","Very Crowded"));
+      _markers.add( _createmarker(1.293494,103.857170, "Suntec City","Very Crowded"));
+      _markers.add( _createmarker(1.2928,103.8598 ,"Milenia Walk","Very Crowded"));
+      _markers.add(_createmarker(1.2912,103.8577, "Marina Square","Moderately Crowded"));
       
       
     });
   }
 
-  Marker _createmarker(double latt,double lng, String title){
+  Marker _createmarker(double latt,double lng, String title, String level){
     var rng = new Random();
     String id = rng.nextInt(10000).toString();
     LatLng lat = LatLng(latt, lng);
-    return Marker(markerId: MarkerId(id), position: lat, infoWindow: InfoWindow(title: title));
+    return Marker(markerId: MarkerId(id), position: lat, infoWindow: InfoWindow(title: title, snippet: level));
 
 
   }
@@ -190,8 +242,8 @@ class _MyHomePageState extends State<MyHomePage> {
   List<WeightedLatLng> _createPoints(LatLng location) {
     final List<WeightedLatLng> points = <WeightedLatLng>[];
     //Can create multiple points here
-    points.add(_createWeightedLatLng(location.latitude,location.longitude, 2));
-    points.add(_createWeightedLatLng(1.2912,103.8577, 3)); 
+    points.add(_createWeightedLatLng(location.latitude,location.longitude, 3));
+    points.add(_createWeightedLatLng(1.2912,103.8577, 2)); 
     points.add(_createWeightedLatLng(1.293494,103.857170, 3));
     points.add(_createWeightedLatLng(1.2842,103.8511, 3));
     points.add(_createWeightedLatLng(1.2803,103.8543, 3));
